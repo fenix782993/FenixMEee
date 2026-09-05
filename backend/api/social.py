@@ -118,3 +118,7 @@ def end_call(call_id:int,db:Session=Depends(get_db),u=Depends(current_user)):
     c=db.get(CallSession,call_id)
     if not c or u.id not in (c.caller_id,c.callee_id): raise HTTPException(404,'Звонок не найден')
     c.status='ended'; c.ended_at=datetime.now(timezone.utc); db.commit(); return {'ok':True}
+
+@router.get('/healthz')
+def healthz():
+    return {'ok': True}

@@ -4,6 +4,7 @@ class UserOut(BaseModel):
     id: int
     public_code: str | None = None
     username: str
+    email: str | None = None
     display_name: str
     avatar: str | None
     bio: str

@@ -12,8 +12,9 @@ from .favorite import Favorite
 from .social import Block, Draft, GroupAdmin, CallSession
 from .settings import UserSettings
 from .phone_verification import PhoneVerification
+from .email_verification import EmailVerification
 
 __all__ = [
     "User", "Chat", "chat_members", "Message", "Reaction", "ReadState",
-    "Favorite", "Block", "Draft", "GroupAdmin", "CallSession", "UserSettings", "PhoneVerification",
+    "Favorite", "Block", "Draft", "GroupAdmin", "CallSession", "UserSettings", "PhoneVerification", "EmailVerification",
 ]

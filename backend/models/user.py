@@ -12,6 +12,7 @@ class User(Base):
     avatar: Mapped[str | None] = mapped_column(String(500), nullable=True)
     bio: Mapped[str] = mapped_column(Text, default='')
     phone: Mapped[str] = mapped_column(String(32), default='')
+    email: Mapped[str | None] = mapped_column(String(320), unique=True, index=True, nullable=True)
     role: Mapped[str] = mapped_column(String(20), default='user', index=True)
     public_code: Mapped[str | None] = mapped_column(String(4), unique=True, index=True, nullable=True)
     online: Mapped[bool] = mapped_column(Boolean, default=False)

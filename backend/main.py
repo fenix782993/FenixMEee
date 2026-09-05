@@ -23,14 +23,17 @@ def _sqlite_migrate():
             with engine.begin() as conn:
                 if "role" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user'"))
                 if "public_code" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN public_code VARCHAR(4)"))
+                if "email" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR(320)"))
     except Exception:
         pass
 
 _sqlite_migrate()
 
+# Ensure the email column exists for databases created by older Fenix builds.
+
 app = FastAPI(
     title=settings.app_name,
-    version="6.0.0",
+    version="10.0.0",
     description="Fenix Messenger API and web application",
 )
 
@@ -77,13 +80,13 @@ def health():
     return {
         "status": "ok",
         "service": "fenix-messenger",
-        "version": "6.0.0",
+        "version": "10.0.0",
         "frontend": "ready" if (FRONTEND_DIST / "index.html").exists() else "not_built",
     }
 
 @app.get("/api/info")
 def info():
-    return {"name": "Fenix Messenger", "version": "6.0.0", "features": [
+    return {"name": "Fenix Messenger", "version": "10.0.0", "features": [
         "auth", "private_chats", "groups", "channels", "messages", "reactions", "pinning",
         "editing", "deleting", "search", "uploads", "websocket", "profile", "avatars", "favorites",
         "emoji", "stickers", "gifs", "drafts", "read_receipts", "blocking", "owner_codes", "group_admins",

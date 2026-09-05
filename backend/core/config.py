@@ -1,4 +1,3 @@
-from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -13,6 +12,14 @@ class Settings(BaseSettings):
     twilio_account_sid: str = ""
     twilio_auth_token: str = ""
     twilio_verify_service_sid: str = ""
+    brevo_api_key: str = ""
+    mail_from: str = ""
+    mail_from_name: str = "Fenix Messenger"
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_use_tls: bool = True
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()

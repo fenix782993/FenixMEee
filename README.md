@@ -1,11 +1,34 @@
-# Fenix Messenger — FULL Telegram-style 7.0
+# Fenix Messenger 10.0 — FULL
 
-Полная deploy-ready сборка Fenix Messenger с Telegram-подобной компоновкой интерфейса: список диалогов слева, папки, поиск, центральный чат, профиль, настройки, меню, мобильный режим, медиа, emoji, realtime WebSocket.
+Полноценная основа Fenix Messenger с Telegram-подобной компоновкой и email-first авторизацией.
 
-## FastAPI Cloud
+## Авторизация
 
-Сборка уже содержит `frontend/dist`, поэтому для запуска опубликованного UI не требуется локальный Node.js. Entrypoint: `backend.main:app`.
+1. Пользователь вводит email.
+2. Сервер создаёт 6-значный OTP.
+3. Код отправляется через Brevo API или SMTP.
+4. После подтверждения пользователь задаёт аватар, имя и username (минимум 5 символов).
+5. После завершения профиля выдаётся JWT и открывается мессенджер.
+
+Если почтовый провайдер не настроен, код не возвращается браузеру: он пишется только в server log для разработки.
 
 ## Основные возможности
 
-Auth/JWT, профили, username 5+, публичные 3/4-значные коды владельца, личные чаты, Избранное, группы, каналы, сообщения, ответы, редактирование, удаление, закрепление, реакции, файлы, аватары, emoji, WebSocket, темы, поиск и мобильный UI.
+- аккаунты, профили, аватары, email, username, ID;
+- поиск людей по username/имени и 3/4-значному public ID;
+- личные чаты и Избранное;
+- группы и каналы;
+- сообщения, reply, edit, delete, pin, reactions;
+- emoji, sticker/GIF разделы;
+- вложения и файловая область;
+- WebSocket realtime, typing/presence;
+- настройки, тема, уведомления, приватность, устройства;
+- WebRTC signaling API для звонков;
+- FastAPI + SQLAlchemy + SQLite/PostgreSQL;
+- готовый `frontend/dist` для деплоя без npm build.
+
+## FastAPI Cloud
+
+Entrypoint: `backend.main:app`.
+
+Для реального email OTP добавьте переменные из `.env.example`.

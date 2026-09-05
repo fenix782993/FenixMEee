@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 class RegisterIn(BaseModel):
     username: str = Field(min_length=5, max_length=32, pattern=r'^[a-zA-Z0-9_]+$')
@@ -23,6 +23,20 @@ class PhoneVerifyIn(BaseModel):
     purpose: str = Field(pattern=r'^(register|login)$')
 
 class CompleteProfileIn(BaseModel):
+    username: str = Field(min_length=5, max_length=32, pattern=r'^[a-zA-Z0-9_]+$')
+    display_name: str = Field(min_length=1, max_length=80)
+    avatar: str | None = Field(default=None, max_length=500)
+
+class EmailRequestIn(BaseModel):
+    email: EmailStr
+    purpose: str = Field(pattern=r'^(register|login)$')
+
+class EmailVerifyIn(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r'^\d{6}$')
+    purpose: str = Field(pattern=r'^(register|login)$')
+
+class CompleteEmailProfileIn(BaseModel):
     username: str = Field(min_length=5, max_length=32, pattern=r'^[a-zA-Z0-9_]+$')
     display_name: str = Field(min_length=1, max_length=80)
     avatar: str | None = Field(default=None, max_length=500)
