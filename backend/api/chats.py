@@ -33,6 +33,15 @@ def chats(db: Session = Depends(get_db), u=Depends(current_user)):
     rows = db.scalars(select(Chat).where(Chat.id.in_(ids)).order_by(Chat.id.desc())).all()
     return [present_chat(db, chat, u.id) for chat in rows]
 
+
+@router.get("/saved", response_model=ChatOut)
+def saved(db: Session = Depends(get_db), u=Depends(current_user)):
+    chat = db.scalar(select(Chat).join(chat_members, Chat.id==chat_members.c.chat_id).where(Chat.kind=="saved", chat_members.c.user_id==u.id))
+    if not chat:
+        chat=Chat(kind="saved",title="Избранное",description="Личные сохранённые сообщения")
+        db.add(chat); db.flush(); db.execute(chat_members.insert().values(chat_id=chat.id,user_id=u.id)); db.commit(); db.refresh(chat)
+    return present_chat(db,chat,u.id)
+
 @router.post("/private", response_model=ChatOut)
 def private(data: PrivateChatIn, db: Session = Depends(get_db), u=Depends(current_user)):
     if data.other_user_id == u.id or not db.get(User, data.other_user_id):

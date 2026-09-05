@@ -1,4 +1,4 @@
-# Fenix Messenger — FULL 4.0
+# Fenix Messenger — FULL 5.0
 
 Полноценная Telegram-подобная база мессенджера, подготовленная для FastAPI Cloud.
 
