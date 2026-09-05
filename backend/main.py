@@ -20,6 +20,16 @@ app = FastAPI(
     description="Fenix Messenger API and web application",
 )
 
+@app.middleware("http")
+async def app_headers(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Content-Type"] = response.headers.get("Content-Type", "application/json; charset=utf-8")
+    elif request.url.path == "/" or request.url.path.endswith(".html") or request.url.path.endswith(".js") or request.url.path.endswith(".css"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
 origins = [x.strip() for x in settings.cors_origins.split(",") if x.strip()]
 allow_all = not origins or origins == ["*"]
 app.add_middleware(

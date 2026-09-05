@@ -3,6 +3,10 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from .config import settings
 
 url = settings.database_url
+if url.startswith("sqlite:///./"):
+    from pathlib import Path
+    project_root = Path(__file__).resolve().parents[2]
+    url = "sqlite:///" + str((project_root / url[len("sqlite:///./"):]).resolve()).replace("\\", "/")
 if url.startswith("postgres://"):
     url = "postgresql+psycopg2://" + url[len("postgres://"):]
 elif url.startswith("postgresql://"):
