@@ -29,4 +29,3 @@ exclude = ["frontend*"]
 [tool.fastapi]
 entrypoint = "backend.main:app"
 
-httpx>=0.28,<1
