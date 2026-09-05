@@ -1,6 +1,11 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "fenix-messenger"
 version = "1.0.0"
+description = "Fenix Messenger"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]",
@@ -12,6 +17,9 @@ dependencies = [
     "websockets",
     "psycopg2-binary"
 ]
+
+[tool.setuptools]
+packages = ["backend"]
 
 [tool.fastapi]
 entrypoint = "backend.main:app"
