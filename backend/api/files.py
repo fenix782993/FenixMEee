@@ -44,3 +44,20 @@ async def avatar_upload(file: UploadFile = File(...), u=Depends(current_user)):
     with SessionLocal() as db:
         user=db.get(type(u),u.id); user.avatar=f'/uploads/{name}'; db.commit()
     return {'url':f'/uploads/{name}'}
+
+@router.post('/public/avatar')
+async def public_avatar(file: UploadFile = File(...)):
+    """Temporary avatar upload for verified phone onboarding; URL is not user-authenticated yet."""
+    import os, uuid
+    if not file.filename or not (file.content_type or '').startswith('image/'):
+        raise HTTPException(400, 'Можно загрузить только изображение')
+    ext = os.path.splitext(file.filename)[1].lower()[:8] or '.jpg'
+    name = f'onboarding_{uuid.uuid4().hex}{ext}'
+    path = UPLOAD_DIR / name; size = 0
+    with path.open('wb') as out:
+        while chunk := await file.read(512 * 1024):
+            size += len(chunk)
+            if size > 8 * 1024 * 1024:
+                path.unlink(missing_ok=True); raise HTTPException(413, 'Аватар максимум 8 МБ')
+            out.write(chunk)
+    return {'url': f'/uploads/{name}'}

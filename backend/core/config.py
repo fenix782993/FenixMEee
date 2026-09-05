@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     access_token_minutes: int = 60 * 24 * 365
     upload_dir: str = "./uploads"
     cors_origins: str = "*"
+    otp_pepper: str = "CHANGE_ME_OTP_PEPPER"
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_verify_service_sid: str = ""
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()
