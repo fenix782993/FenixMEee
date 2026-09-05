@@ -1,15 +1,18 @@
 from datetime import datetime, timedelta, timezone
-from jose import jwt, JWTError
-from passlib.context import CryptContext
+from jose import JWTError, jwt
+from pwdlib import PasswordHash
 from .config import settings
 
-pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_hash = PasswordHash.recommended()
 
 def hash_password(value: str) -> str:
-    return pwd.hash(value)
+    return password_hash.hash(value)
 
 def verify_password(value: str, hashed: str) -> bool:
-    return pwd.verify(value, hashed)
+    try:
+        return password_hash.verify(value, hashed)
+    except Exception:
+        return False
 
 def create_token(user_id: int) -> str:
     now = datetime.now(timezone.utc)
@@ -17,6 +20,8 @@ def create_token(user_id: int) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 def token_user_id(token: str) -> int | None:
+    if not token:
+        return None
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         return int(payload["sub"])
