@@ -1,14 +1,35 @@
-# Fenix Messenger — Full Starter
+# Fenix Messenger — Full MVP
 
-Telegram-inspired full-stack messenger foundation: authentication, profiles, private chats, groups, realtime WebSocket messaging, edit/delete, replies, reactions, search, pinning, typing indicator, read state, media upload, notifications, PWA-ready frontend, PostgreSQL/SQLite support, Docker and Render deployment.
+Полноценная Telegram-inspired основа мессенджера: авторизация, профили, личные и групповые чаты, realtime WebSocket, редактирование/удаление, реакции, ответы, поиск, вложения, закрепление, уведомления и адаптивный интерфейс.
 
-## Run locally
-1. `cd frontend && npm install && npm run build`
-2. `cd .. && python -m venv .venv`
-3. Activate venv and `pip install -r backend/requirements.txt`
-4. `uvicorn backend.main:app --reload --port 8000`
-5. Open `http://localhost:8000`
+## Запуск
 
-For development frontend: `cd frontend && npm run dev`.
+### Backend
+`python -m venv .venv` → `pip install -r backend/requirements.txt` → `uvicorn backend.main:app --reload`
 
-Set `DATABASE_URL` for PostgreSQL and a strong `JWT_SECRET` in production.
+### Frontend
+`cd frontend` → `npm install` → `npm run dev`
+
+Для production Docker собирает React и отдаёт его через FastAPI. По умолчанию SQLite; для PostgreSQL задайте `DATABASE_URL`.
+
+## Переменные
+`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `UPLOAD_DIR`.
+
+## Что уже реализовано
+- регистрация / вход / JWT
+- профиль, bio, online/last seen
+- пользователи и поиск
+- личные чаты и группы
+- история сообщений
+- WebSocket realtime
+- typing / read events
+- reply / edit / delete
+- реакции
+- pin / unpin
+- файлы и изображения
+- поиск сообщений
+- непрочитанные сообщения
+- адаптивный desktop/mobile UI
+- Render + Docker
+
+Это самостоятельная реализация с Telegram-подобной логикой интерфейса, без копирования исходного кода Telegram или его закрытых ресурсов.

@@ -1,8 +1,12 @@
 services:
-  messenger:
+  fenix-messenger:
     build: .
     ports:
       - "8000:8000"
     environment:
-      JWT_SECRET: change-me-in-production
+      JWT_SECRET: change-this-in-production
       DATABASE_URL: sqlite:///./data.db
+    volumes:
+      - fenix_data:/app/backend/uploads
+volumes:
+  fenix_data:
