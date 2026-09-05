@@ -1,0 +1,20 @@
+# API
+
+`POST /api/auth/register`
+`POST /api/auth/login`
+`POST /api/auth/logout`
+`GET /api/users`
+`GET /api/users/me`
+`PATCH /api/users/me`
+`GET /api/chats`
+`POST /api/chats/private`
+`POST /api/chats/group`
+`GET /api/chats/{chat_id}/messages`
+`POST /api/chats/{chat_id}/messages`
+`PATCH /api/chats/{chat_id}/messages/{message_id}`
+`DELETE /api/chats/{chat_id}/messages/{message_id}`
+`POST /api/chats/{chat_id}/messages/{message_id}/reaction`
+`POST /api/chats/{chat_id}/messages/{message_id}/pin`
+`GET /api/search/messages`
+`POST /api/files/upload`
+`WS /ws/{chat_id}`

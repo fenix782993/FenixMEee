@@ -1,0 +1,1 @@
+import {MessageCircle} from 'lucide-react';export default function EmptyState(){return <div className="welcome"><MessageCircle size={64}/><h2>Добро пожаловать в Fenix Messenger</h2><p>Выберите диалог слева или найдите пользователя.</p></div>}

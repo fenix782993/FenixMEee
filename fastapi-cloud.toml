@@ -1,0 +1,4 @@
+# FastAPI Cloud helper configuration
+# The authoritative entrypoint is also declared in pyproject.toml.
+[fastapi]
+entrypoint = "backend.main:app"

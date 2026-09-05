@@ -1,35 +1,55 @@
-# Fenix Messenger — Full MVP
+# Fenix Messenger — FULL
 
-Полноценная Telegram-inspired основа мессенджера: авторизация, профили, личные и групповые чаты, realtime WebSocket, редактирование/удаление, реакции, ответы, поиск, вложения, закрепление, уведомления и адаптивный интерфейс.
+Полноценный full-stack мессенджер на FastAPI + SQLAlchemy + WebSocket с готовым статическим frontend/dist.
 
-## Запуск
+## Что уже внутри
 
-### Backend
-`python -m venv .venv` → `pip install -r backend/requirements.txt` → `uvicorn backend.main:app --reload`
+- регистрация и вход по JWT;
+- профиль пользователя и статус online;
+- поиск пользователей;
+- личные чаты;
+- групповые чаты;
+- история сообщений;
+- отправка, редактирование и удаление сообщений;
+- emoji reactions;
+- закрепление сообщений;
+- загрузка файлов до 25 MB;
+- WebSocket для realtime typing/presence/messages;
+- адаптивный Telegram-подобный интерфейс;
+- светлая и тёмная тема;
+- поиск сообщений;
+- FastAPI Cloud конфигурация через pyproject.toml;
+- готовый `frontend/dist`, поэтому для деплоя не требуется Node.js на сервере.
 
-### Frontend
-`cd frontend` → `npm install` → `npm run dev`
+## FastAPI Cloud
 
-Для production Docker собирает React и отдаёт его через FastAPI. По умолчанию SQLite; для PostgreSQL задайте `DATABASE_URL`.
+В корне проекта уже есть `pyproject.toml`, `requirements.txt` и `main.py`. Точка входа: `backend.main:app`.
 
-## Переменные
-`DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`, `UPLOAD_DIR`.
+Переменные окружения:
 
-## Что уже реализовано
-- регистрация / вход / JWT
-- профиль, bio, online/last seen
-- пользователи и поиск
-- личные чаты и группы
-- история сообщений
-- WebSocket realtime
-- typing / read events
-- reply / edit / delete
-- реакции
-- pin / unpin
-- файлы и изображения
-- поиск сообщений
-- непрочитанные сообщения
-- адаптивный desktop/mobile UI
-- Render + Docker
+- `DATABASE_URL` — PostgreSQL URL или SQLite;
+- `JWT_SECRET` — длинный секрет для JWT;
+- `CORS_ORIGINS` — список origin через запятую или `*`.
 
-Это самостоятельная реализация с Telegram-подобной логикой интерфейса, без копирования исходного кода Telegram или его закрытых ресурсов.
+## Локально
+
+```bash
+python -m venv .venv
+.venv/Scripts/activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Открой `http://127.0.0.1:8000`.
+
+## Разработка frontend
+
+Исходник React/Vite находится в `frontend/src`. Если установлен Node.js:
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+Собранный результат заменит `frontend/dist`.

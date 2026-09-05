@@ -1,0 +1,2 @@
+import Avatar from '../../components/Avatar';import {CheckCheck} from 'lucide-react';
+export default function ChatList({chats,selected,onSelect}){return <div className="chat-list">{chats.map(c=><button key={c.id} className={`chat-row ${selected?.id===c.id?'selected':''}`} onClick={()=>onSelect(c)}><Avatar user={c}/><div className="chat-row-body"><div><b>{c.title||'Личный чат'}</b><time>сейчас</time></div><p>{c.description||'Открыть переписку'}</p></div></button>)}{!chats.length&&<div className="empty">Чатов пока нет.<br/>Найди пользователя через поиск.</div>}</div>}

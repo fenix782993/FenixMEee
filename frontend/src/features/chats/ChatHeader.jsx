@@ -1,0 +1,1 @@
+import Avatar from '../../components/Avatar';export default function ChatHeader({chat}){return <div className="head-title"><b>{chat.title||'Личный чат'}</b><span>{chat.kind==='group'?'группа':'в сети'}</span></div>}

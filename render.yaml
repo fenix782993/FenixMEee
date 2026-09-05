@@ -1,13 +1,10 @@
 services:
   - type: web
     name: fenix-messenger
-    env: python
-    buildCommand: pip install -r backend/requirements.txt && cd frontend && npm ci && npm run build
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    env: docker
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: JWT_SECRET
-        generateValue: true
       - key: DATABASE_URL
         sync: false
-      - key: CORS_ORIGINS
-        value: "*"
+      - key: JWT_SECRET
+        generateValue: true

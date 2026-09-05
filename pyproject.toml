@@ -1,25 +1,29 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "fenix-messenger"
-version = "1.0.0"
-description = "Fenix Messenger"
+version = "2.0.0"
+description = "Fenix Messenger full-stack FastAPI application"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi[standard]",
-    "uvicorn[standard]",
-    "sqlalchemy",
-    "python-jose[cryptography]",
-    "passlib[bcrypt]",
-    "python-multipart",
-    "websockets",
-    "psycopg2-binary"
+  "fastapi[standard]>=0.116,<1",
+  "uvicorn[standard]>=0.35,<1",
+  "sqlalchemy>=2.0,<3",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "python-jose[cryptography]>=3.5,<4",
+  "passlib[bcrypt]>=1.7,<2",
+  "python-multipart>=0.0.20,<1",
+  "psycopg2-binary>=2.9,<3",
+  "email-validator>=2.3,<3",
+  "websockets>=15,<16"
 ]
 
-[tool.setuptools]
-packages = ["backend"]
+[tool.setuptools.packages.find]
+include = ["backend*"]
+exclude = ["frontend*", "tests*"]
 
 [tool.fastapi]
 entrypoint = "backend.main:app"
