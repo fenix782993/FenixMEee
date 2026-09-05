@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fenix-messenger"
-version = "2.0.0"
-description = "Fenix Messenger full-stack FastAPI application"
-requires-python = ">=3.12"
+version = "3.0.0"
+description = "Fenix Messenger full-stack application"
+requires-python = ">=3.11"
 dependencies = [
   "fastapi[standard]>=0.116,<1",
   "uvicorn[standard]>=0.35,<1",
@@ -23,7 +23,7 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 include = ["backend*"]
-exclude = ["frontend*", "tests*"]
+exclude = ["frontend*"]
 
 [tool.fastapi]
 entrypoint = "backend.main:app"

@@ -1,59 +1,39 @@
-# Fenix Messenger — FULL
+# Fenix Messenger — FULL 4.0
 
-Полноценный full-stack мессенджер на FastAPI + SQLAlchemy + WebSocket с готовым статическим frontend/dist.
+Полноценная Telegram-подобная база мессенджера, подготовленная для FastAPI Cloud.
 
-## Что уже внутри
+## Что внутри
 
-- регистрация и вход по JWT;
-- профиль пользователя и статус online;
-- поиск пользователей;
-- личные чаты;
-- групповые чаты;
-- история сообщений;
-- отправка, редактирование и удаление сообщений;
-- emoji reactions;
-- закрепление сообщений;
-- загрузка файлов до 25 MB;
-- WebSocket для realtime typing/presence/messages;
-- адаптивный Telegram-подобный интерфейс;
-- светлая и тёмная тема;
-- поиск сообщений;
-- FastAPI Cloud конфигурация через pyproject.toml;
-- готовый `frontend/dist`, поэтому для деплоя не требуется Node.js на сервере.
+- Регистрация и вход
+- Юзернейм от 5 символов
+- Поиск людей по `@username`, имени и 3/4-значному публичному ID
+- Профиль: имя, bio, аватар, публичный ID
+- Первый зарегистрированный пользователь получает роль владельца
+- Владелец может выдавать пользователям 3- или 4-значные ID
+- Личные чаты и группы
+- Сообщения, редактирование, удаление, реакции, закрепление
+- Избранные сообщения
+- Файлы и изображения
+- Emoji picker
+- Стикеры
+- GIF picker
+- WebSocket realtime
+- Тёмная/светлая тема
+- Админские заготовки и owner panel
+- Готовый `frontend/dist` уже находится в архиве
+- PostgreSQL/SQLite через `DATABASE_URL`
 
 ## FastAPI Cloud
 
-В корне проекта уже есть `pyproject.toml`, `requirements.txt` и `main.py`. Точка входа: `backend.main:app`.
+Entrypoint: `backend.main:app`.
 
-Переменные окружения:
-
-- `DATABASE_URL` — PostgreSQL URL или SQLite;
-- `JWT_SECRET` — длинный секрет для JWT;
-- `CORS_ORIGINS` — список origin через запятую или `*`.
+Для этого архива **не требуется npm для запуска опубликованного интерфейса**, потому что готовый `frontend/dist` уже включён.
 
 ## Локально
 
 ```bash
-python -m venv .venv
-.venv/Scripts/activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn backend.main:app --reload
 ```
 
-Открой `http://127.0.0.1:8000`.
-
-## Разработка frontend
-
-Исходник React/Vite находится в `frontend/src`. Если установлен Node.js:
-
-```bash
-cd frontend
-npm install
-npm run build
-```
-
-Собранный результат заменит `frontend/dist`.
-
-
-## Исправление авторизации
-В этой сборке пароль хранится через `pwdlib[argon2]`, логин нормализуется в lowercase, добавлен `/api/auth/me`, а готовый `frontend/dist` уже включён в архив.
+Откройте `/`.

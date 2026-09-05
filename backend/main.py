@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 
-from backend.api import auth, users, chats, messages, search, files
+from backend.api import auth, users, chats, messages, search, files, extras
 from backend.core.config import settings
 from backend.core.db import Base, engine, SessionLocal
 from backend.core.security import token_user_id
@@ -13,6 +13,20 @@ from backend.models import User, chat_members
 from backend.services.ws import manager
 
 Base.metadata.create_all(engine)
+
+def _sqlite_migrate():
+    """Small additive migration for existing SQLite installs."""
+    try:
+        from sqlalchemy import inspect, text
+        if str(engine.url).startswith("sqlite"):
+            insp=inspect(engine); cols={c["name"] for c in insp.get_columns("users")}
+            with engine.begin() as conn:
+                if "role" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user'"))
+                if "public_code" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN public_code VARCHAR(4)"))
+    except Exception:
+        pass
+
+_sqlite_migrate()
 
 app = FastAPI(
     title=settings.app_name,
@@ -46,6 +60,7 @@ app.include_router(chats.router, prefix="/api")
 app.include_router(messages.router, prefix="/api")
 app.include_router(search.router, prefix="/api")
 app.include_router(files.router, prefix="/api")
+app.include_router(extras.router, prefix="/api")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 UPLOADS = Path(settings.upload_dir)
