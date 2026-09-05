@@ -1,4 +1,4 @@
-import hashlib, secrets, re, smtplib
+import hashlib, secrets, re, smtplib, ssl, logging
 from email.message import EmailMessage
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,6 +12,7 @@ from backend.models import User, PhoneVerification, EmailVerification
 from backend.schemas.auth import RegisterIn, LoginIn, TokenOut, PhoneRequestIn, PhoneVerifyIn, CompleteProfileIn, EmailRequestIn, EmailVerifyIn, CompleteEmailProfileIn
 
 router = APIRouter(prefix='/auth', tags=['auth'])
+log = logging.getLogger('fenix.email')
 PHONE_RE = re.compile(r'^\+[1-9]\d{6,14}$')
 
 def clean_username(value: str) -> str: return value.strip().lower()
@@ -25,25 +26,88 @@ def clean_email(value: str) -> str: return value.strip().lower()
 def code_hash(code: str) -> str: return hashlib.sha256((settings.otp_pepper+':'+code).encode()).hexdigest()
 
 def configured_email() -> bool:
-    return bool(settings.brevo_api_key and settings.mail_from) or bool(settings.smtp_host and settings.smtp_user and settings.smtp_password and settings.mail_from)
+    smtp_ok = bool(settings.smtp_host and settings.smtp_user and settings.smtp_password and settings.mail_from)
+    brevo_api_ok = bool(settings.brevo_api_key and settings.mail_from)
+    return smtp_ok or brevo_api_ok
 
-async def send_email_code(email: str, code: str) -> None:
-    subject='Код подтверждения — Fenix Messenger'
-    html=f'''<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto"><h2>Fenix Messenger</h2><p>Ваш код подтверждения:</p><div style="font-size:32px;font-weight:700;letter-spacing:8px">{code}</div><p>Код действует 5 минут.</p><p style="color:#777">Если вы не запрашивали код, просто проигнорируйте это письмо.</p></div>'''
+def email_config_status() -> dict:
+    return {
+        'configured': configured_email(),
+        'provider': 'brevo_api' if settings.brevo_api_key and settings.mail_from else ('brevo_smtp' if settings.smtp_host and settings.smtp_user and settings.smtp_password and settings.mail_from else 'none'),
+        'smtp_host': settings.smtp_host or None,
+        'smtp_port': settings.smtp_port,
+        'smtp_user_set': bool(settings.smtp_user),
+        'smtp_password_set': bool(settings.smtp_password),
+        'smtp_use_tls': settings.smtp_use_tls,
+        'mail_from_set': bool(settings.mail_from),
+        'mail_from': settings.mail_from or None,
+        'brevo_api_configured': bool(settings.brevo_api_key),
+        'dev_mode': settings.email_dev_mode,
+    }
+
+async def send_email_code(email: str, code: str) -> str:
+    subject = 'Код подтверждения — Fenix Messenger'
+    html = f"""<div style='font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px'><h2>Fenix Messenger</h2><p>Ваш код подтверждения:</p><div style='font-size:32px;font-weight:700;letter-spacing:8px;margin:20px 0'>{code}</div><p>Код действует 5 минут.</p><p style='color:#777'>Если вы не запрашивали код, просто проигнорируйте это письмо.</p></div>"""
     if settings.brevo_api_key and settings.mail_from:
         import httpx
-        async with httpx.AsyncClient(timeout=15) as client:
-            r=await client.post('https://api.brevo.com/v3/smtp/email',headers={'api-key':settings.brevo_api_key,'accept':'application/json','content-type':'application/json'},json={'sender':{'email':settings.mail_from,'name':settings.mail_from_name},'to':[{'email':email}], 'subject':subject,'htmlContent':html})
-        if r.status_code>=400: raise HTTPException(502,'Не удалось отправить код на email. Проверьте настройки Brevo.')
-        return
+        try:
+            async with httpx.AsyncClient(timeout=20) as client:
+                r = await client.post('https://api.brevo.com/v3/smtp/email', headers={'api-key':settings.brevo_api_key,'accept':'application/json','content-type':'application/json'}, json={'sender':{'email':settings.mail_from,'name':settings.mail_from_name},'to':[{'email':email}], 'subject':subject,'htmlContent':html})
+            if r.status_code >= 400:
+                try: detail = r.json().get('message') or r.text[:300]
+                except Exception: detail = r.text[:300]
+                log.error('Brevo API rejected email: status=%s detail=%s', r.status_code, detail)
+                raise HTTPException(502, f'Brevo не принял письмо: {detail}')
+            log.info('Email OTP sent via Brevo API to %s', email)
+            return 'brevo_api'
+        except HTTPException:
+            raise
+        except Exception as exc:
+            log.exception('Brevo API send failed: %s', exc)
+            raise HTTPException(502, f'Ошибка отправки через Brevo API: {type(exc).__name__}')
     if settings.smtp_host and settings.smtp_user and settings.smtp_password and settings.mail_from:
-        msg=EmailMessage(); msg['Subject']=subject; msg['From']=settings.mail_from; msg['To']=email; msg.set_content(f'Fenix Messenger\n\nВаш код: {code}\nКод действует 5 минут.')
-        msg.add_alternative(html,subtype='html')
-        with smtplib.SMTP(settings.smtp_host,settings.smtp_port,timeout=15) as server:
-            if settings.smtp_use_tls: server.starttls()
-            server.login(settings.smtp_user,settings.smtp_password); server.send_message(msg)
-        return
-    print(f'[FENIX EMAIL OTP DEV] {email}: {code}',flush=True)
+        msg = EmailMessage()
+        msg['Subject'] = subject; msg['From'] = settings.mail_from; msg['To'] = email; msg['Reply-To'] = settings.mail_from
+        msg.set_content(f'Fenix Messenger\n\nВаш код: {code}\nКод действует 5 минут.')
+        msg.add_alternative(html, subtype='html')
+        try:
+            context = ssl.create_default_context()
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=25) as server:
+                server.ehlo()
+                if settings.smtp_use_tls:
+                    server.starttls(context=context)
+                    server.ehlo()
+                server.login(settings.smtp_user, settings.smtp_password)
+                server.send_message(msg)
+            log.info('Email OTP sent via SMTP %s:%s to %s', settings.smtp_host, settings.smtp_port, email)
+            return 'brevo_smtp'
+        except smtplib.SMTPAuthenticationError:
+            log.exception('SMTP authentication failed')
+            raise HTTPException(502, 'Brevo отклонил SMTP-авторизацию. Проверьте SMTP_USER и SMTP_PASSWORD.')
+        except smtplib.SMTPRecipientsRefused:
+            log.exception('SMTP recipient refused')
+            raise HTTPException(502, 'SMTP отклонил адрес получателя.')
+        except smtplib.SMTPSenderRefused:
+            log.exception('SMTP sender refused')
+            raise HTTPException(502, 'Brevo отклонил MAIL_FROM. Укажите подтверждённый Sender в Brevo.')
+        except (smtplib.SMTPConnectError, TimeoutError, OSError) as exc:
+            log.exception('SMTP connection failed')
+            raise HTTPException(502, f'Не удалось подключиться к SMTP Brevo: {type(exc).__name__}')
+        except smtplib.SMTPException as exc:
+            log.exception('SMTP error')
+            raise HTTPException(502, f'Ошибка SMTP Brevo: {type(exc).__name__}')
+        except Exception as exc:
+            log.exception('SMTP send failed')
+            raise HTTPException(502, f'Ошибка отправки email: {type(exc).__name__}')
+    if settings.email_dev_mode:
+        log.warning('[FENIX EMAIL DEV] %s: %s', email, code)
+        return 'development_log'
+    log.error('Email provider is not configured: %s', email_config_status())
+    raise HTTPException(503, 'Email не настроен на сервере. Проверьте SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD и MAIL_FROM в FastAPI Cloud.')
+
+@router.get('/email/status')
+def email_status():
+    return email_config_status()
 
 @router.post('/email/request')
 async def email_request(data: EmailRequestIn, db: Session=Depends(get_db)):
@@ -54,9 +118,9 @@ async def email_request(data: EmailRequestIn, db: Session=Depends(get_db)):
     recent=db.scalar(select(EmailVerification).where(EmailVerification.email==email,EmailVerification.purpose==data.purpose,EmailVerification.used==False,EmailVerification.created_at>now-timedelta(seconds=45)).order_by(EmailVerification.id.desc()))
     if recent: raise HTTPException(429,'Новый код можно запросить через несколько секунд.')
     code=f'{secrets.randbelow(1_000_000):06d}'
+    delivery=await send_email_code(email,code)
     db.add(EmailVerification(email=email,purpose=data.purpose,code_hash=code_hash(code),expires_at=now+timedelta(minutes=5))); db.commit()
-    await send_email_code(email,code)
-    return {'ok':True,'email':email,'expires_in':300,'delivery':'email' if configured_email() else 'development_log'}
+    return {'ok':True,'email':email,'expires_in':300,'delivery':delivery}
 
 @router.post('/email/verify')
 def email_verify(data: EmailVerifyIn, db: Session=Depends(get_db)):

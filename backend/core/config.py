@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     smtp_use_tls: bool = True
+    email_dev_mode: bool = False
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()
