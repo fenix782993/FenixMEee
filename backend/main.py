@@ -30,7 +30,7 @@ _sqlite_migrate()
 
 app = FastAPI(
     title=settings.app_name,
-    version="5.0.0",
+    version="5.0.1",
     description="Fenix Messenger API and web application",
 )
 
@@ -77,13 +77,13 @@ def health():
     return {
         "status": "ok",
         "service": "fenix-messenger",
-        "version": "5.0.0",
+        "version": "5.0.1",
         "frontend": "ready" if (FRONTEND_DIST / "index.html").exists() else "not_built",
     }
 
 @app.get("/api/info")
 def info():
-    return {"name": "Fenix Messenger", "version": "5.0.0", "features": [
+    return {"name": "Fenix Messenger", "version": "5.0.1", "features": [
         "auth", "private_chats", "groups", "channels", "messages", "reactions", "pinning",
         "editing", "deleting", "search", "uploads", "websocket", "profile", "avatars", "favorites",
         "emoji", "stickers", "gifs", "drafts", "read_receipts", "blocking", "owner_codes", "group_admins",

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fenix-messenger"
-version = "5.0.0"
+version = "5.0.1"
 description = "Fenix Messenger full-stack application"
 requires-python = ">=3.11"
 dependencies = [

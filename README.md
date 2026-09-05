@@ -37,3 +37,9 @@ uvicorn backend.main:app --reload
 ```
 
 Откройте `/`.
+
+
+## 5.0.1 hotfix
+- Fixed duplicate SQLAlchemy `read_states` table registration.
+- `ReadState` now has a single canonical model in `backend/models/read.py`.
+- `backend/models/__init__.py` uses explicit imports to prevent duplicate model registration.

@@ -20,15 +20,6 @@ class Draft(Base):
     updated_at: Mapped[datetime]=mapped_column(DateTime,default=lambda:datetime.now(timezone.utc),onupdate=lambda:datetime.now(timezone.utc))
     __table_args__=(UniqueConstraint('user_id','chat_id',name='uq_draft'),)
 
-class ReadState(Base):
-    __tablename__='read_states'
-    id: Mapped[int]=mapped_column(primary_key=True)
-    user_id: Mapped[int]=mapped_column(ForeignKey('users.id'),index=True)
-    chat_id: Mapped[int]=mapped_column(ForeignKey('chats.id'),index=True)
-    last_message_id: Mapped[int]=mapped_column(Integer,default=0)
-    updated_at: Mapped[datetime]=mapped_column(DateTime,default=lambda:datetime.now(timezone.utc),onupdate=lambda:datetime.now(timezone.utc))
-    __table_args__=(UniqueConstraint('user_id','chat_id',name='uq_read'),)
-
 class GroupAdmin(Base):
     __tablename__='group_admins'
     id: Mapped[int]=mapped_column(primary_key=True)
