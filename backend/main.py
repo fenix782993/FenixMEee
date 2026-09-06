@@ -14,26 +14,44 @@ from backend.services.ws import manager
 
 Base.metadata.create_all(engine)
 
-def _sqlite_migrate():
-    """Small additive migration for existing SQLite installs."""
+def _db_migrate():
+    """Small additive migration for existing SQLite/PostgreSQL installs.
+
+    create_all() does not add columns to tables that already exist. Older
+    Fenix databases may therefore be missing the email column even though
+    the current User model has it. Add only missing columns; never drop data.
+    """
     try:
         from sqlalchemy import inspect, text
-        if str(engine.url).startswith("sqlite"):
-            insp=inspect(engine); cols={c["name"] for c in insp.get_columns("users")}
-            with engine.begin() as conn:
+        dialect = engine.dialect.name
+        insp = inspect(engine)
+        tables = set(insp.get_table_names())
+        if "users" not in tables:
+            return
+        cols = {c["name"] for c in insp.get_columns("users")}
+        with engine.begin() as conn:
+            if dialect == "postgresql":
+                if "role" not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'user'"))
+                if "public_code" not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS public_code VARCHAR(4)"))
+                if "email" not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(320)"))
+            elif dialect == "sqlite":
                 if "role" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(20) DEFAULT 'user'"))
                 if "public_code" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN public_code VARCHAR(4)"))
                 if "email" not in cols: conn.execute(text("ALTER TABLE users ADD COLUMN email VARCHAR(320)"))
-    except Exception:
-        pass
+    except Exception as exc:
+        import logging
+        logging.getLogger("fenix.db").exception("Database migration warning: %s", exc)
 
-_sqlite_migrate()
+_db_migrate()
 
 # Ensure the email column exists for databases created by older Fenix builds.
 
 app = FastAPI(
     title=settings.app_name,
-    version="11.2.0",
+    version="12.0.0",
     description="Fenix Messenger API and web application",
 )
 
@@ -80,13 +98,13 @@ def health():
     return {
         "status": "ok",
         "service": "fenix-messenger",
-        "version": "11.2.0",
+        "version": "12.0.0",
         "frontend": "ready" if (FRONTEND_DIST / "index.html").exists() else "not_built",
     }
 
 @app.get("/api/info")
 def info():
-    return {"name": "Fenix Messenger", "version": "11.2.0", "features": [
+    return {"name": "Fenix Messenger", "version": "12.0.0", "features": [
         "auth", "private_chats", "groups", "channels", "messages", "reactions", "pinning",
         "editing", "deleting", "search", "uploads", "websocket", "profile", "avatars", "favorites",
         "emoji", "stickers", "gifs", "drafts", "read_receipts", "blocking", "owner_codes", "group_admins",

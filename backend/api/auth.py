@@ -3,6 +3,7 @@ from email.message import EmailMessage
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from backend.api.deps import current_user
 from backend.core.db import get_db
@@ -115,12 +116,25 @@ async def email_request(data: EmailRequestIn, db: Session=Depends(get_db)):
     if data.purpose=='register' and existing: raise HTTPException(409,'Этот email уже зарегистрирован. Выберите вход.')
     if data.purpose=='login' and not existing: raise HTTPException(404,'Аккаунт с таким email не найден. Сначала зарегистрируйтесь.')
     now=datetime.now(timezone.utc)
-    recent=db.scalar(select(EmailVerification).where(EmailVerification.email==email,EmailVerification.purpose==data.purpose,EmailVerification.used==False,EmailVerification.created_at>now-timedelta(seconds=45)).order_by(EmailVerification.id.desc()))
-    if recent: raise HTTPException(429,'Новый код можно запросить через несколько секунд.')
-    code=f'{secrets.randbelow(1_000_000):06d}'
-    delivery=await send_email_code(email,code)
-    db.add(EmailVerification(email=email,purpose=data.purpose,code_hash=code_hash(code),expires_at=now+timedelta(minutes=5))); db.commit()
-    return {'ok':True,'email':email,'expires_in':300,'delivery':delivery}
+    try:
+        recent=db.scalar(select(EmailVerification).where(EmailVerification.email==email,EmailVerification.purpose==data.purpose,EmailVerification.used==False,EmailVerification.created_at>now-timedelta(seconds=45)).order_by(EmailVerification.id.desc()))
+        if recent: raise HTTPException(429,'Новый код можно запросить через несколько секунд.')
+        code=f'{secrets.randbelow(1_000_000):06d}'
+        delivery=await send_email_code(email,code)
+        db.add(EmailVerification(email=email,purpose=data.purpose,code_hash=code_hash(code),expires_at=now+timedelta(minutes=5)))
+        db.commit()
+        return {'ok':True,'email':email,'expires_in':300,'delivery':delivery}
+    except HTTPException:
+        db.rollback()
+        raise
+    except SQLAlchemyError as exc:
+        db.rollback()
+        log.exception('Email verification database error')
+        raise HTTPException(500,'Ошибка базы данных при отправке кода. Перезапустите приложение после обновления Fenix Messenger.')
+    except Exception as exc:
+        db.rollback()
+        log.exception('Unexpected email request error: %s', exc)
+        raise HTTPException(500,f'Ошибка отправки кода: {type(exc).__name__}')
 
 @router.post('/email/verify')
 def email_verify(data: EmailVerifyIn, db: Session=Depends(get_db)):
