@@ -1,3 +1,7 @@
+# Email OTP — Fenix Messenger 12.0
+
+This build also contains an additive database migration for existing PostgreSQL installations. If your old `users` table did not have the `email` column, the server adds it automatically on startup.
+
 # Email OTP — Fenix Messenger 11.2
 
 В FastAPI Cloud → Environment Variables добавь именно эти переменные:
