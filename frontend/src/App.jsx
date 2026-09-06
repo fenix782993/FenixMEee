@@ -1,3 +1,10 @@
-// Development source: the deployment-ready Telegram-style shell is in frontend/dist.
-// The FastAPI Cloud deployment serves dist directly so Node is not required on deploy.
-export default function App(){return null}
+import { useEffect } from 'react';
+
+export default function App(){
+  useEffect(()=>{
+    // Production is served from frontend/dist by FastAPI Cloud.
+    // Keep this source entry intentionally minimal; the deployment bundle is the
+    // fully interactive vanilla client in dist/assets/app.js.
+  },[]);
+  return null;
+}

@@ -10,3 +10,41 @@ body[data-theme=dark]{background:#111820;color:#e9edf0}body[data-theme=dark] .ap
 /* phone */
 @media(max-width:800px){.auth-shell{min-height:100%;background:#fff}.auth-layout{display:block;width:100%;min-height:100%;border:0;border-radius:0;box-shadow:none}.auth-hero{display:none}.auth-card{padding:28px 22px;min-height:100dvh;justify-content:center}.auth-brand-mobile{display:flex;align-items:center;justify-content:center;gap:9px;font-size:22px;margin-bottom:35px}.auth-brand-mobile .logo{width:38px;height:38px}.auth-card h1{font-size:28px}.app{grid-template-columns:1fr;height:100dvh}.sidebar{display:none}.chat-area{height:calc(100dvh - 66px)}.mobile-nav{position:fixed;display:flex;bottom:0;left:0;right:0;height:66px;background:#fff;border-top:1px solid #e1e6ea;z-index:20;justify-content:space-around}.mobile-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#7c8994;font-size:18px}.mobile-nav span{font-size:10px}.chat-header{padding:0 8px;height:58px}.chat-head-actions .icon-btn{width:38px}.messages{padding:14px 10px 20px}.bubble{max-width:88%}.composer-wrap{padding-bottom:74px}.composer{padding-bottom:2px}.pinned{height:34px;padding:0 10px}.empty-chat{padding-bottom:100px}.drawer{width:86vw}.modal{max-height:84dvh}.emoji-grid{grid-template-columns:repeat(7,1fr)}.attach-grid{grid-template-columns:repeat(4,1fr)}.profile-mini{display:none}.auth-card input{font-size:16px}.code{letter-spacing:9px}.onboard-avatar{margin-top:12px}}
 @media(min-width:801px) and (max-width:1100px){.app{grid-template-columns:310px 1fr}.auth-layout{grid-template-columns:1fr 430px}.auth-hero{padding:45px}.auth-hero h2{font-size:34px}}
+
+/* Telegram-style mobile shell fix */
+.empty-list{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;color:#7b8995;padding:72px 24px}.empty-list>div{font-size:34px;color:#9aa6af}.empty-list b{font-size:16px;color:#44515c}.empty-list small{font-size:13px;line-height:1.45;max-width:250px}
+@media(max-width:800px){
+ html,body,#root{width:100%;height:100%;overflow:hidden}
+ body{min-width:0}
+ .app{position:relative;display:block;width:100%;height:100dvh;overflow:hidden}
+ .app .sidebar{position:absolute;inset:0;display:flex!important;width:100%;height:100%;border:0;z-index:2}
+ .app .chat-area{position:absolute;inset:0;display:none;width:100%;height:100%;z-index:4}
+ .app.mobile-chat .sidebar{display:none!important}
+ .app.mobile-chat .chat-area{display:flex!important}
+ .side-top{padding:8px 10px;height:58px}
+ .side-top .icon-btn{width:42px;height:42px}
+ .search{height:42px;border-radius:12px}
+ .folders{padding:0 10px 8px;gap:4px;scrollbar-width:none}
+ .folders::-webkit-scrollbar{display:none}
+ .folder{padding:8px 11px;font-size:14px}
+ .chat-list{padding-bottom:70px}
+ .chat-row{padding:10px 12px;min-height:64px}
+ .profile-mini{display:none}
+ .mobile-nav{display:flex!important;position:absolute;left:0;right:0;bottom:0;height:64px;background:#fff;border-top:1px solid #e1e6ea;z-index:10;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom)}
+ .mobile-nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#7c8994;font-size:18px}
+ .mobile-nav span{font-size:10px}
+ .chat-header{height:58px;padding:0 8px}
+ .messages{padding:10px 9px 14px}
+ .bubble{max-width:88%;font-size:15px}
+ .composer-wrap{padding:7px 8px calc(7px + env(safe-area-inset-bottom))}
+ .composer textarea{min-height:42px;font-size:16px}
+ .send-btn{width:42px;height:42px}
+ .pinned{height:34px;padding:0 10px}
+ .empty-chat{padding:20px}
+ .empty-chat .primary{display:none}
+ .drawer{width:min(360px,88vw)}
+}
+/* Fenix 12.2 — Telegram 2026 UI spec */
+.stories{display:flex;gap:10px;overflow:auto;padding:5px 12px 10px;border-bottom:1px solid #edf0f3;scrollbar-width:none}.stories::-webkit-scrollbar{display:none}.story{min-width:62px;display:flex;flex-direction:column;align-items:center;gap:4px;color:#6f7d88}.story small{font-size:10px;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.story-avatar{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:#eef3f7;border:2px solid #3390ec;color:#3390ec;font-weight:800;overflow:hidden}.story.add .story-avatar{border:2px dashed #aab6c0;background:#f7f9fa}.story-avatar .avatar{width:100%;height:100%;min-width:0;border:0}.archive-row{display:flex;align-items:center;gap:11px;padding:9px 15px;border-bottom:1px solid #edf0f3;color:#60707c;cursor:pointer}.archive-row:hover{background:#f5f7f9}.archive-row>div{display:flex;flex-direction:column;flex:1}.archive-row small{font-size:11px;color:#94a0a9}.archive-count{font-size:12px;color:#3390ec}.chat-line{display:flex;justify-content:space-between;gap:7px}.chat-line time{font-size:11px;color:#9aa5ad;white-space:nowrap}.chat-preview{display:block}.chat-bottom{display:flex;align-items:center;gap:6px}.chat-bottom small{color:#9aa5ad;font-size:10px}.chat-bottom em{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#3390ec;color:#fff;font-style:normal;font-size:11px;display:grid;place-items:center}.fab{position:fixed;right:28px;bottom:28px;width:56px;height:56px;border-radius:50%;background:#3390ec;color:#fff;font-size:26px;box-shadow:0 9px 24px #3390ec45;z-index:15}.fab:hover{transform:translateY(-2px)}.chat-head-main{border:0;background:transparent;padding:0;text-align:left;display:flex;gap:11px;align-items:center;flex:1}.chat-head-main:hover{opacity:.85}.pinned{gap:10px}.pinned div{display:flex;flex-direction:column;min-width:0}.pinned small{font-size:10px;color:#99a4ad}.media-card{background:#eef4f8;border-radius:10px;padding:8px;margin-top:7px;color:#607481;font-size:12px}.checks{color:#3390ec;font-weight:800}.bubble{position:relative}.message-menu{position:absolute;right:4px;top:4px;opacity:0;background:#fff;border-radius:50%;width:24px;height:24px;color:#7c8994}.bubble:hover .message-menu{opacity:.9}.reaction-pill{margin-top:5px;border:1px solid #cbdde9;background:#fff;border-radius:12px;padding:2px 7px;color:#526674}.reaction-pill small{font-size:10px}.reply-ref{border-left:3px solid #3390ec;padding:4px 7px;margin:0 0 6px;background:#3390ec0d;color:#4d7da0;font-size:12px;border-radius:0 6px 6px 0}.compose-sheet .sheet-item{font-size:15px;padding:14px}.desktop-only{display:grid}
+body[data-theme=dark] .stories,body[data-theme=dark] .archive-row{border-color:#26333e}body[data-theme=dark] .archive-row:hover{background:#202d38}body[data-theme=dark] .story{color:#aeb9c1}body[data-theme=dark] .story-avatar{background:#202c37;border-color:#4c9fe8}body[data-theme=dark] .chat-bottom small,body[data-theme=dark] .chat-line time{color:#7f8d98}body[data-theme=dark] .media-card,body[data-theme=dark] .reaction-pill,body[data-theme=dark] .message-menu{background:#202c37;color:#d9e0e5;border-color:#34434f}
+@media(max-width:800px){.desktop-only{display:none}.fab{right:18px;bottom:78px;width:54px;height:54px}.stories{padding-top:3px}.archive-row{padding:9px 13px}.chat-list{padding-bottom:72px}.chat-row{min-height:72px;padding:10px 13px}.chat-row .avatar{width:54px;height:54px;min-width:54px}.chat-preview{max-width:240px}.chat-bottom small{display:block}.chat-header .chat-head-main .avatar{width:42px;height:42px;min-width:42px}.chat-header .chat-head-main{overflow:hidden}.chat-head-main>div{min-width:0}.chat-head-main b{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.message-menu{display:none}.mobile-nav button.active{color:#3390ec;font-weight:700}.mobile-nav button.active::before{content:'';position:absolute;top:5px;width:38px;height:3px;border-radius:3px;background:#3390ec}.mobile-nav{position:absolute}.composer-wrap{z-index:5}.compose-sheet{bottom:74px}}
