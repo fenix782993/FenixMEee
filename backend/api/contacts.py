@@ -86,8 +86,8 @@ def send_request(payload: ContactAction, db: Session = Depends(get_db), user=Dep
         raise HTTPException(404,"Пользователь не найден")
     blocked=db.execute(select(Block).where(
         or_(
-            (Block.user_id==uid)&(Block.blocked_user_id==target),
-            (Block.user_id==target)&(Block.blocked_user_id==uid)
+            (Block.owner_id==uid)&(Block.blocked_id==target),
+            (Block.owner_id==target)&(Block.blocked_id==uid)
         )
     )).scalar_one_or_none()
     if blocked:
