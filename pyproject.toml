@@ -28,5 +28,3 @@ exclude = ["frontend*"]
 
 [tool.fastapi]
 entrypoint = "backend.main:app"
-[tool.fastapi]
-entrypoint = "backend.main:app"
