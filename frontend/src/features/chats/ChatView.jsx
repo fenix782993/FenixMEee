@@ -1,2 +1,23 @@
-import {useEffect,useRef,useState} from 'react';import {ArrowLeft,Paperclip,Phone,Search,Send,Smile,Video,MoreVertical,Mic} from 'lucide-react';import {get,post,patch,del} from '../../lib/api';import {useWebSocket} from '../../hooks/useWebSocket';import MessageBubble from './MessageBubble';import Avatar from '../../components/Avatar';
-export default function ChatView({chat,me,onBack}){const [messages,setMessages]=useState([]),[text,setText]=useState(''),[reply,setReply]=useState(null),[editing,setEditing]=useState(null),[typing,setTyping]=useState(false),[search,setSearch]=useState(false);const end=useRef(null);useEffect(()=>{if(!chat)return;get(`/api/chats/${chat.id}/messages`).then(setMessages)},[chat]);useWebSocket(chat?.id,e=>{if(e.type==='message')setMessages(x=>[...x,e.message]);if(e.type==='message_updated')setMessages(x=>x.map(m=>m.id===e.message.id?e.message:m));if(e.type==='message_deleted')setMessages(x=>x.map(m=>m.id===e.message_id?{...m,deleted:true,text:''}:m));if(e.type==='typing')setTyping(e.user_id!==me.id)});useEffect(()=>end.current?.scrollIntoView({behavior:'smooth'}),[messages]);async function send(){if(!text.trim()&&!editing)return;if(editing){const m=await patch(`/api/chats/${chat.id}/messages/${editing.id}`,{text});setMessages(x=>x.map(v=>v.id===m.id?m:v));setEditing(null);setText('');return}const m=await post(`/api/chats/${chat.id}/messages`,{text,reply_to_id:reply?.id||null});setMessages(x=>x.some(v=>v.id===m.id)?x:[...x,m]);setText('');setReply(null)}async function upload(file){const f=new FormData();f.append('file',file);const r=await post('/api/files/upload',f);const m=await post(`/api/chats/${chat.id}/messages`,{text:file.name,media_url:r.url,media_type:r.content_type});setMessages(x=>x.some(v=>v.id===m.id)?x:[...x,m])}return <section className="conversation"><header className="conversation-head"><button className="mobile-back" onClick={onBack}><ArrowLeft/></button><Avatar user={chat} online/><div className="head-title"><b>{chat.title||'Личный чат'}</b><span>{typing?'печатает…':'в сети'}</span></div><div className="head-actions"><button onClick={()=>setSearch(!search)}><Search/></button><button><Phone/></button><button><Video/></button><button><MoreVertical/></button></div></header>{search&&<div className="chat-search"><Search size={16}/><input placeholder="Поиск в чате"/></div>}<div className="messages">{messages.map(m=><MessageBubble key={m.id} message={m} mine={m.sender_id===me.id} onReply={setReply} onEdit={m=>{setEditing(m);setText(m.text)}} onDelete={async m=>{await del(`/api/chats/${chat.id}/messages/${m.id}`)}} onReact={async(m,e)=>post(`/api/chats/${chat.id}/messages/${m.id}/reaction`,{emoji:e})} onPin={async m=>post(`/api/chats/${chat.id}/messages/${m.id}/pin`,{})}/>)}<div ref={end}/></div>{reply&&<div className="reply-bar">Ответ на #{reply.id}<button onClick={()=>setReply(null)}>×</button></div>}{editing&&<div className="reply-bar">Редактирование #{editing.id}<button onClick={()=>{setEditing(null);setText('')}}>×</button></div>}<footer className="composer"><label className="attach"><Paperclip/><input type="file" hidden onChange={e=>e.target.files[0]&&upload(e.target.files[0])}/></label><input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&!e.shiftKey&&(e.preventDefault(),send())} placeholder="Написать сообщение…"/><button><Smile/></button><button className="send" onClick={send}>{text?<Send/>:<Mic/>}</button></footer></section>}
+
+import { useState } from 'react';
+const seed = [
+  {id:1, from:'other', text:'Привет! Добро пожаловать в Fenix Messenger.', time:'18:25'},
+  {id:2, from:'other', text:'Здесь уже есть группы, реакции, поиск и real-time WebSocket.', time:'18:26'},
+  {id:3, from:'me', text:'Отлично. Делаем полноценный мессенджер.', time:'18:28', seen:true},
+  {id:4, from:'other', text:'Следующий шаг — подключить реальную БД и аккаунты.', time:'18:31'}
+];
+export default function ChatView({chat, onBack}) {
+  const [messages,setMessages]=useState(seed);
+  const [text,setText]=useState('');
+  const send=()=>{const v=text.trim(); if(!v)return; setMessages(m=>[...m,{id:Date.now(),from:'me',text:v,time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),seen:true}]);setText('')};
+  return <section className="chat-view">
+    <header className="chat-header">
+      <button className="mobile-back" onClick={onBack}>‹</button><div className="avatar">F</div>
+      <div><b>{chat?.title || 'Чат'}</b><small>в сети · WebSocket</small></div>
+      <div className="header-actions"><button>⌕</button><button>☎</button><button>⋮</button></div>
+    </header>
+    <div className="pinned">📌 <b>Закреплённое сообщение</b><span>Новый релиз Fenix v14</span></div>
+    <div className="message-area">{messages.map(m=><div className={`message ${m.from}`} key={m.id}><div className="bubble">{m.text}<footer>{m.time}{m.seen?' ✓✓':''}</footer></div></div>)}</div>
+    <div className="composer"><button>＋</button><input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder="Сообщение" /><button>☺</button><button onClick={send}>➤</button></div>
+  </section>
+}

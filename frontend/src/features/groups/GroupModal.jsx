@@ -1,1 +1,6 @@
-import {useState} from 'react';import Modal from '../../components/Modal';import {post} from '../../lib/api';export default function GroupModal({users,onClose,onCreated}){const [title,setTitle]=useState(''),[description,setDescription]=useState(''),[members,setMembers]=useState([]);async function create(){const c=await post('/api/chats/group',{title,description,member_ids:members});onCreated(c)}return <Modal title="Новая группа" onClose={onClose}><input placeholder="Название группы" value={title} onChange={e=>setTitle(e.target.value)}/><textarea placeholder="Описание" value={description} onChange={e=>setDescription(e.target.value)}/><div className="member-picker">{users.map(u=><label key={u.id}><input type="checkbox" checked={members.includes(u.id)} onChange={()=>setMembers(x=>x.includes(u.id)?x.filter(i=>i!==u.id):[...x,u.id])}/>{u.display_name} <small>@{u.username}</small></label>)}</div><button className="primary" onClick={create} disabled={!title}>Создать группу</button></Modal>}
+
+import {useState} from 'react';
+export default function GroupModal({onClose}) {
+ const [name,setName]=useState('');
+ return <div className="modal-layer"><div className="modal-card"><button className="close" onClick={onClose}>×</button><h2>Создать группу</h2><div className="group-icon">👥</div><input className="text-input" value={name} onChange={e=>setName(e.target.value)} placeholder="Название группы"/><button className="primary wide" disabled={!name.trim()}>Создать группу</button><button className="secondary wide" onClick={onClose}>Отмена</button></div></div>
+}
