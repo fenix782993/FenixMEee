@@ -1,97 +1,145 @@
-from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
-from sqlalchemy import select, or_, and_, delete
+from pydantic import BaseModel
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
+
 from backend.api.deps import current_user
 from backend.core.db import get_db
 from backend.models import User, Contact, FriendRequest, Block
 from backend.services.chat_service import ensure_private
 
-router = APIRouter(prefix='/contacts', tags=['contacts'])
+router = APIRouter(prefix="/contacts", tags=["contacts"])
 
-class ContactIn(BaseModel):
+class UserOut(BaseModel):
+    id: int
+    username: str | None = None
+    display_name: str | None = None
+    avatar_url: str | None = None
+
+    model_config = {"from_attributes": True}
+
+class ContactAction(BaseModel):
     user_id: int
-    nickname: str = Field(default='', max_length=80)
-class RequestIn(BaseModel):
-    user_id: int
-class RespondIn(BaseModel):
-    request_id: int
-    accept: bool
 
+def _uid(user):
+    return int(getattr(user, "id"))
 
-def person(u, nickname=''):
-    return {'id':u.id,'public_code':u.public_code,'username':u.username,'display_name':u.display_name,'nickname':nickname,'avatar':u.avatar,'bio':u.bio,'online':u.online,'last_seen':u.last_seen,'role':u.role}
+@router.get("", response_model=list[UserOut])
+def list_contacts(db: Session = Depends(get_db), user=Depends(current_user)):
+    uid = _uid(user)
+    rows = db.execute(select(Contact).where(Contact.owner_id == uid)).scalars().all()
+    ids = [r.contact_id for r in rows]
+    if not ids:
+        return []
+    return db.execute(select(User).where(User.id.in_(ids))).scalars().all()
 
-def is_blocked(db, a, b):
-    return bool(db.scalar(select(Block).where(Block.user_id==a, Block.blocked_user_id==b))) or bool(db.scalar(select(Block).where(Block.user_id==b, Block.blocked_user_id==a)))
+@router.get("/search", response_model=list[UserOut])
+def search_people(q: str, db: Session = Depends(get_db), user=Depends(current_user)):
+    q = q.strip()
+    if not q:
+        return []
+    like = f"%{q}%"
+    stmt = select(User).where(
+        User.id != _uid(user),
+        or_(
+            User.username.ilike(like),
+            User.display_name.ilike(like),
+        )
+    ).limit(30)
+    return db.execute(stmt).scalars().all()
 
-@router.get('')
-def list_contacts(db: Session=Depends(get_db), u=Depends(current_user)):
-    rows = db.scalars(select(Contact).where(Contact.owner_id==u.id).order_by(Contact.id.desc())).all()
-    out=[]
-    for c in rows:
-        target=db.get(User,c.contact_user_id)
-        if target: out.append(person(target,c.nickname))
-    return out
+@router.get("/requests/incoming")
+def incoming_requests(db: Session = Depends(get_db), user=Depends(current_user)):
+    rows = db.execute(
+        select(FriendRequest).where(
+            FriendRequest.receiver_id == _uid(user),
+            FriendRequest.status == "pending"
+        )
+    ).scalars().all()
+    result=[]
+    for r in rows:
+        u=db.get(User,r.sender_id)
+        if u: result.append({"id":r.id,"user":UserOut.model_validate(u).model_dump()})
+    return result
 
-@router.post('')
-def add_contact(data: ContactIn, db: Session=Depends(get_db), u=Depends(current_user)):
-    if data.user_id == u.id: raise HTTPException(400,'Нельзя добавить себя')
-    target=db.get(User,data.user_id)
-    if not target: raise HTTPException(404,'Пользователь не найден')
-    if is_blocked(db,u.id,target.id): raise HTTPException(403,'Контакт заблокирован')
-    c=db.scalar(select(Contact).where(Contact.owner_id==u.id,Contact.contact_user_id==target.id))
-    if not c:
-        c=Contact(owner_id=u.id,contact_user_id=target.id,nickname=data.nickname.strip())
-        db.add(c); db.commit(); db.refresh(c)
-    return person(target,c.nickname)
+@router.get("/requests/outgoing")
+def outgoing_requests(db: Session = Depends(get_db), user=Depends(current_user)):
+    rows = db.execute(
+        select(FriendRequest).where(
+            FriendRequest.sender_id == _uid(user),
+            FriendRequest.status == "pending"
+        )
+    ).scalars().all()
+    result=[]
+    for r in rows:
+        u=db.get(User,r.receiver_id)
+        if u: result.append({"id":r.id,"user":UserOut.model_validate(u).model_dump()})
+    return result
 
-@router.patch('/{user_id}')
-def rename_contact(user_id:int,data:ContactIn,db:Session=Depends(get_db),u=Depends(current_user)):
-    c=db.scalar(select(Contact).where(Contact.owner_id==u.id,Contact.contact_user_id==user_id))
-    if not c: raise HTTPException(404,'Контакт не найден')
-    c.nickname=data.nickname.strip(); db.commit(); return {'ok':True}
-
-@router.delete('/{user_id}')
-def remove_contact(user_id:int,db:Session=Depends(get_db),u=Depends(current_user)):
-    db.execute(delete(Contact).where(Contact.owner_id==u.id,Contact.contact_user_id==user_id)); db.commit(); return {'ok':True}
-
-@router.get('/requests')
-def requests(db:Session=Depends(get_db),u=Depends(current_user)):
-    incoming=db.scalars(select(FriendRequest).where(FriendRequest.receiver_id==u.id,FriendRequest.status=='pending').order_by(FriendRequest.id.desc())).all()
-    outgoing=db.scalars(select(FriendRequest).where(FriendRequest.sender_id==u.id,FriendRequest.status=='pending').order_by(FriendRequest.id.desc())).all()
-    return {'incoming':[{'id':r.id,'from':person(db.get(User,r.sender_id)),'created_at':r.created_at} for r in incoming], 'outgoing':[{'id':r.id,'to':person(db.get(User,r.receiver_id)),'created_at':r.created_at} for r in outgoing]}
-
-@router.post('/request')
-def send_request(data:RequestIn,db:Session=Depends(get_db),u=Depends(current_user)):
-    target=db.get(User,data.user_id)
-    if not target or target.id==u.id: raise HTTPException(404,'Пользователь не найден')
-    if is_blocked(db,u.id,target.id): raise HTTPException(403,'Нельзя отправить запрос этому пользователю')
-    if db.scalar(select(Contact).where(Contact.owner_id==u.id,Contact.contact_user_id==target.id)):
-        return {'ok':True,'status':'already_contact'}
-    reverse=db.scalar(select(FriendRequest).where(FriendRequest.sender_id==target.id,FriendRequest.receiver_id==u.id,FriendRequest.status=='pending'))
+@router.post("/request")
+def send_request(payload: ContactAction, db: Session = Depends(get_db), user=Depends(current_user)):
+    uid=_uid(user); target=payload.user_id
+    if uid == target:
+        raise HTTPException(400,"Нельзя добавить самого себя")
+    if not db.get(User,target):
+        raise HTTPException(404,"Пользователь не найден")
+    blocked=db.execute(select(Block).where(
+        or_(
+            (Block.owner_id==uid)&(Block.blocked_id==target),
+            (Block.owner_id==target)&(Block.blocked_id==uid)
+        )
+    )).scalar_one_or_none()
+    if blocked:
+        raise HTTPException(403,"Добавление недоступно")
+    exists=db.execute(select(Contact).where(Contact.owner_id==uid,Contact.contact_id==target)).scalar_one_or_none()
+    if exists:
+        return {"status":"already_contact"}
+    reverse=db.execute(select(FriendRequest).where(
+        FriendRequest.sender_id==target, FriendRequest.receiver_id==uid, FriendRequest.status=="pending"
+    )).scalar_one_or_none()
     if reverse:
-        reverse.status='accepted'; reverse.responded_at=datetime.now(timezone.utc)
-        for a,b in ((u.id,target.id),(target.id,u.id)):
-            if not db.scalar(select(Contact).where(Contact.owner_id==a,Contact.contact_user_id==b)): db.add(Contact(owner_id=a,contact_user_id=b))
-        db.commit(); ensure_private(db,u.id,target.id)
-        return {'ok':True,'status':'accepted','chat_created':True}
-    req=db.scalar(select(FriendRequest).where(FriendRequest.sender_id==u.id,FriendRequest.receiver_id==target.id))
-    if req and req.status=='pending': return {'ok':True,'status':'pending'}
-    if req: req.status='pending'; req.responded_at=None
-    else: db.add(FriendRequest(sender_id=u.id,receiver_id=target.id))
-    db.commit(); return {'ok':True,'status':'pending'}
-
-@router.post('/request/respond')
-def respond(data:RespondIn,db:Session=Depends(get_db),u=Depends(current_user)):
-    req=db.get(FriendRequest,data.request_id)
-    if not req or req.receiver_id!=u.id or req.status!='pending': raise HTTPException(404,'Запрос не найден')
-    now=datetime.now(timezone.utc); req.status='accepted' if data.accept else 'rejected'; req.responded_at=now
-    if data.accept:
-        for a,b in ((req.sender_id,req.receiver_id),(req.receiver_id,req.sender_id)):
-            if not db.scalar(select(Contact).where(Contact.owner_id==a,Contact.contact_user_id==b)): db.add(Contact(owner_id=a,contact_user_id=b))
+        reverse.status="accepted"
+        db.add_all([Contact(owner_id=uid,contact_id=target),Contact(owner_id=target,contact_id=uid)])
+        db.commit()
+        chat=ensure_private(db,uid,target)
+        return {"status":"accepted","chat_id":getattr(chat,"id",None)}
+    req=db.execute(select(FriendRequest).where(
+        FriendRequest.sender_id==uid, FriendRequest.receiver_id==target
+    )).scalar_one_or_none()
+    if req:
+        req.status="pending"
+    else:
+        req=FriendRequest(sender_id=uid,receiver_id=target,status="pending")
+        db.add(req)
     db.commit()
-    chat=None
-    if data.accept: chat=ensure_private(db,req.sender_id,req.receiver_id)
-    return {'ok':True,'status':req.status,'chat_id':chat.id if chat else None}
+    return {"status":"pending","request_id":req.id}
+
+@router.post("/request/{request_id}/accept")
+def accept_request(request_id:int, db:Session=Depends(get_db), user=Depends(current_user)):
+    req=db.get(FriendRequest,request_id)
+    if not req or req.receiver_id != _uid(user) or req.status!="pending":
+        raise HTTPException(404,"Запрос не найден")
+    req.status="accepted"
+    db.add_all([Contact(owner_id=req.sender_id,contact_id=req.receiver_id),
+                Contact(owner_id=req.receiver_id,contact_id=req.sender_id)])
+    chat=ensure_private(db,req.sender_id,req.receiver_id)
+    db.commit()
+    return {"status":"accepted","chat_id":getattr(chat,"id",None)}
+
+@router.post("/request/{request_id}/decline")
+def decline_request(request_id:int, db:Session=Depends(get_db), user=Depends(current_user)):
+    req=db.get(FriendRequest,request_id)
+    if not req or req.receiver_id != _uid(user):
+        raise HTTPException(404,"Запрос не найден")
+    req.status="declined"
+    db.commit()
+    return {"status":"declined"}
+
+@router.delete("/{contact_id}")
+def remove_contact(contact_id:int, db:Session=Depends(get_db), user=Depends(current_user)):
+    uid=_uid(user)
+    rows=db.execute(select(Contact).where(Contact.owner_id==uid,Contact.contact_id==contact_id)).scalars().all()
+    for row in rows: db.delete(row)
+    db.commit()
+    return {"status":"removed"}

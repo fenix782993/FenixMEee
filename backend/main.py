@@ -9,6 +9,7 @@ from backend.api import auth, users, chats, messages, search, files, extras, soc
 from backend.core.config import settings
 from backend.core.db import Base, engine, SessionLocal
 from backend.core.security import token_user_id
+from backend.models.contacts import Contact, FriendRequest, Block
 from backend.models import User, chat_members
 from backend.services.ws import manager
 

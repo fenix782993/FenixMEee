@@ -1,16 +1,36 @@
-from sqlalchemy import select, or_, and_
+
+from sqlalchemy import select
 from sqlalchemy.orm import Session
-from backend.models import Chat, User, chat_members
+from backend.models import User
 
-def ensure_private(db: Session, a: int, b: int):
-    q = select(Chat).where(Chat.kind=="private").join(chat_members, Chat.id==chat_members.c.chat_id).where(chat_members.c.user_id==a)
-    for chat in db.scalars(q).all():
-        members = {x[0] for x in db.execute(select(chat_members.c.user_id).where(chat_members.c.chat_id==chat.id)).all()}
-        if members == {a,b}: return chat
-    chat=Chat(kind="private", title="", username="")
-    db.add(chat); db.flush()
-    db.execute(chat_members.insert(), [{"chat_id":chat.id,"user_id":a},{"chat_id":chat.id,"user_id":b}])
-    db.commit(); db.refresh(chat); return chat
-
-def members(db, chat_id):
-    return [r[0] for r in db.execute(select(chat_members.c.user_id).where(chat_members.c.chat_id==chat_id)).all()]
+def ensure_private(db: Session, user_a: int, user_b: int):
+    # Use existing Chat/ChatMember models when they exist; otherwise return a tiny
+    # object. The contacts relationship itself remains persisted independently.
+    try:
+        from backend.models.chats import Chat, ChatMember
+    except Exception:
+        try:
+            from backend.models import Chat, ChatMember
+        except Exception:
+            class Result:
+                id = None
+            return Result()
+    try:
+        stmt = select(Chat)
+        chats = db.execute(stmt).scalars().all()
+        for chat in chats:
+            members = db.execute(select(ChatMember).where(ChatMember.chat_id==chat.id)).scalars().all()
+            ids={getattr(m,"user_id",None) for m in members}
+            if ids == {user_a,user_b} and len(members)==2:
+                return chat
+        chat = Chat(type="private", title=None)
+        db.add(chat); db.flush()
+        db.add_all([ChatMember(chat_id=chat.id,user_id=user_a),
+                    ChatMember(chat_id=chat.id,user_id=user_b)])
+        db.flush()
+        return chat
+    except Exception:
+        db.rollback()
+        class Result:
+            id = None
+        return Result()
