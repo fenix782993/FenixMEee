@@ -6,6 +6,7 @@ import ChatView from './features/chats/ChatView';
 import ProfilePanel from './features/profile/ProfilePanel';
 import SettingsPanel from './features/settings/SettingsPanel';
 import GroupModal from './features/groups/GroupModal';
+import ContactsPanel from './features/contacts/ContactsPanel';
 import './styles.css';
 
 const demoChats = [
@@ -22,6 +23,7 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [mobile, setMobile] = useState(false);
   const [groupOpen, setGroupOpen] = useState(false);
+  const [contactsOpen, setContactsOpen] = useState(false);
 
   useEffect(() => {
     const onResize = () => setMobile(window.innerWidth < 760);
@@ -62,7 +64,7 @@ export default function App() {
         <ChatList chats={chats} active={active} onSelect={setActive} />
         <div className="sidebar-bottom">
           <button onClick={() => setPanel('profile')}>👤 Профиль</button>
-          <button onClick={() => setPanel('settings')}>⚙ Настройки</button>
+          <button onClick={() => setContactsOpen(true)}>👥 Контакты</button><button onClick={() => setPanel('settings')}>⚙ Настройки</button>
         </div>
       </aside>
 
@@ -77,12 +79,13 @@ export default function App() {
           <div className="side-menu">
             <div className="menu-user"><div className="avatar large">F</div><b>Fenix User</b><small>@fenix</small></div>
             <button>🔖 Избранное</button><button>👥 Контакты</button><button>📁 Папки</button><button>📞 Звонки</button>
-            <button>🔔 Уведомления</button><button>🎨 Оформление</button><button onClick={() => setPanel('settings')}>⚙ Настройки</button>
+            <button>🔔 Уведомления</button><button>🎨 Оформление</button><button onClick={() => setContactsOpen(true)}>👥 Контакты</button><button onClick={() => setPanel('settings')}>⚙ Настройки</button>
           </div>
           <div className="menu-backdrop" onClick={() => setPanel(null)} />
         </div>
       )}
       {groupOpen && <GroupModal onClose={() => setGroupOpen(false)} />}
+      {contactsOpen && <ContactsPanel onClose={() => setContactsOpen(false)} onOpenChat={() => setContactsOpen(false)} />}
     </div>
   );
 }
