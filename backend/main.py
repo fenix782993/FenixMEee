@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 
-from backend.api import auth, users, chats, messages, search, files, extras, social
+from backend.api import auth, users, chats, messages, search, files, extras, social, contacts
 from backend.core.config import settings
 from backend.core.db import Base, engine, SessionLocal
 from backend.core.security import token_user_id
@@ -51,7 +51,7 @@ _db_migrate()
 
 app = FastAPI(
     title=settings.app_name,
-    version="12.0.0",
+    version="15.0.0",
     description="Fenix Messenger API and web application",
 )
 
@@ -83,6 +83,7 @@ app.include_router(search.router, prefix="/api")
 app.include_router(files.router, prefix="/api")
 app.include_router(extras.router, prefix="/api")
 app.include_router(social.router, prefix="/api")
+app.include_router(contacts.router, prefix="/api")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 UPLOADS = Path(settings.upload_dir)
@@ -98,13 +99,13 @@ def health():
     return {
         "status": "ok",
         "service": "fenix-messenger",
-        "version": "12.0.0",
+        "version": "15.0.0",
         "frontend": "ready" if (FRONTEND_DIST / "index.html").exists() else "not_built",
     }
 
 @app.get("/api/info")
 def info():
-    return {"name": "Fenix Messenger", "version": "12.0.0", "features": [
+    return {"name": "Fenix Messenger", "version": "15.0.0", "features": [
         "auth", "private_chats", "groups", "channels", "messages", "reactions", "pinning",
         "editing", "deleting", "search", "uploads", "websocket", "profile", "avatars", "favorites",
         "emoji", "stickers", "gifs", "drafts", "read_receipts", "blocking", "owner_codes", "group_admins",

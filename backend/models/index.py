@@ -4,3 +4,4 @@ from .message import Message
 from .reaction import Reaction
 from .read import *
 from .favorite import Favorite
+from .contact import Contact, FriendRequest
