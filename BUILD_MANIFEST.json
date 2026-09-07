@@ -1,0 +1,598 @@
+{
+  "version": "14.0.0",
+  "architecture": "Fenix-native, tdesktop-inspired",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 284
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 104
+    },
+    {
+      "path": "Dockerfile",
+      "bytes": 425
+    },
+    {
+      "path": "FASTAPI_CLOUD_ENV.md",
+      "bytes": 790
+    },
+    {
+      "path": "FEATURES.md",
+      "bytes": 211
+    },
+    {
+      "path": "FEATURES_10.md",
+      "bytes": 1234
+    },
+    {
+      "path": "FEATURES_11.md",
+      "bytes": 1321
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 121
+    },
+    {
+      "path": "README.md",
+      "bytes": 1725
+    },
+    {
+      "path": "README_V14.md",
+      "bytes": 870
+    },
+    {
+      "path": "SECURITY.md",
+      "bytes": 419
+    },
+    {
+      "path": "VERSION",
+      "bytes": 25
+    },
+    {
+      "path": "backend/__init__.py",
+      "bytes": 0
+    },
+    {
+      "path": "backend/api/__init__.py",
+      "bytes": 0
+    },
+    {
+      "path": "backend/api/auth.py",
+      "bytes": 16893
+    },
+    {
+      "path": "backend/api/chats.py",
+      "bytes": 3141
+    },
+    {
+      "path": "backend/api/deps.py",
+      "bytes": 697
+    },
+    {
+      "path": "backend/api/extras.py",
+      "bytes": 3274
+    },
+    {
+      "path": "backend/api/files.py",
+      "bytes": 2903
+    },
+    {
+      "path": "backend/api/health.py",
+      "bytes": 111
+    },
+    {
+      "path": "backend/api/messages.py",
+      "bytes": 3790
+    },
+    {
+      "path": "backend/api/search.py",
+      "bytes": 714
+    },
+    {
+      "path": "backend/api/social.py",
+      "bytes": 8551
+    },
+    {
+      "path": "backend/api/users.py",
+      "bytes": 1813
+    },
+    {
+      "path": "backend/core/__init__.py",
+      "bytes": 0
+    },
+    {
+      "path": "backend/core/config.py",
+      "bytes": 899
+    },
+    {
+      "path": "backend/core/db.py",
+      "bytes": 939
+    },
+    {
+      "path": "backend/core/security.py",
+      "bytes": 1046
+    },
+    {
+      "path": "backend/main.py",
+      "bytes": 5930
+    },
+    {
+      "path": "backend/models/__init__.py",
+      "bytes": 759
+    },
+    {
+      "path": "backend/models/chat.py",
+      "bytes": 998
+    },
+    {
+      "path": "backend/models/email_verification.py",
+      "bytes": 780
+    },
+    {
+      "path": "backend/models/favorite.py",
+      "bytes": 664
+    },
+    {
+      "path": "backend/models/index.py",
+      "bytes": 171
+    },
+    {
+      "path": "backend/models/message.py",
+      "bytes": 1214
+    },
+    {
+      "path": "backend/models/phone_verification.py",
+      "bytes": 797
+    },
+    {
+      "path": "backend/models/reaction.py",
+      "bytes": 536
+    },
+    {
+      "path": "backend/models/read.py",
+      "bytes": 498
+    },
+    {
+      "path": "backend/models/settings.py",
+      "bytes": 886
+    },
+    {
+      "path": "backend/models/social.py",
+      "bytes": 2520
+    },
+    {
+      "path": "backend/models/user.py",
+      "bytes": 1218
+    },
+    {
+      "path": "backend/requirements.txt",
+      "bytes": 287
+    },
+    {
+      "path": "backend/schemas/__init__.py",
+      "bytes": 0
+    },
+    {
+      "path": "backend/schemas/auth.py",
+      "bytes": 1527
+    },
+    {
+      "path": "backend/schemas/chat.py",
+      "bytes": 405
+    },
+    {
+      "path": "backend/schemas/message.py",
+      "bytes": 641
+    },
+    {
+      "path": "backend/schemas/user.py",
+      "bytes": 537
+    },
+    {
+      "path": "backend/services/__init__.py",
+      "bytes": 0
+    },
+    {
+      "path": "backend/services/chat_service.py",
+      "bytes": 888
+    },
+    {
+      "path": "backend/services/ws.py",
+      "bytes": 638
+    },
+    {
+      "path": "backend/uploads/.gitkeep",
+      "bytes": 0
+    },
+    {
+      "path": "docker-compose.yml",
+      "bytes": 395
+    },
+    {
+      "path": "docs/DEPLOY_FASTAPI_CLOUD.md",
+      "bytes": 470
+    },
+    {
+      "path": "docs/EMAIL_SMTP_SETUP_11.md",
+      "bytes": 1520
+    },
+    {
+      "path": "docs/FEATURES.md",
+      "bytes": 469
+    },
+    {
+      "path": "docs/PHONE_AUTH.md",
+      "bytes": 941
+    },
+    {
+      "path": "docs/RELEASE_V14.md",
+      "bytes": 879
+    },
+    {
+      "path": "docs/TDESKTOP_INSPIRED_ARCHITECTURE.md",
+      "bytes": 1654
+    },
+    {
+      "path": "docs/docs/API.md",
+      "bytes": 566
+    },
+    {
+      "path": "docs/docs/ARCHITECTURE.md",
+      "bytes": 689
+    },
+    {
+      "path": "docs/docs/ROADMAP.md",
+      "bytes": 444
+    },
+    {
+      "path": "fastapi-cloud.toml",
+      "bytes": 74
+    },
+    {
+      "path": "frontend/dist/assets/app.css",
+      "bytes": 21563
+    },
+    {
+      "path": "frontend/dist/assets/app.js",
+      "bytes": 36618
+    },
+    {
+      "path": "frontend/dist/assets/phone-auth.js",
+      "bytes": 4455
+    },
+    {
+      "path": "frontend/dist/index.html",
+      "bytes": 416
+    },
+    {
+      "path": "frontend/index.html",
+      "bytes": 304
+    },
+    {
+      "path": "frontend/package.json",
+      "bytes": 326
+    },
+    {
+      "path": "frontend/public/assets/avatar-01.webp",
+      "bytes": 4032
+    },
+    {
+      "path": "frontend/public/assets/avatar-02.webp",
+      "bytes": 4332
+    },
+    {
+      "path": "frontend/public/assets/avatar-03.webp",
+      "bytes": 4056
+    },
+    {
+      "path": "frontend/public/assets/avatar-04.webp",
+      "bytes": 4092
+    },
+    {
+      "path": "frontend/public/assets/avatar-05.webp",
+      "bytes": 4260
+    },
+    {
+      "path": "frontend/public/assets/avatar-06.webp",
+      "bytes": 3554
+    },
+    {
+      "path": "frontend/public/assets/avatar-07.webp",
+      "bytes": 3838
+    },
+    {
+      "path": "frontend/public/assets/avatar-08.webp",
+      "bytes": 3464
+    },
+    {
+      "path": "frontend/public/assets/avatar-09.webp",
+      "bytes": 3972
+    },
+    {
+      "path": "frontend/public/assets/avatar-10.webp",
+      "bytes": 3826
+    },
+    {
+      "path": "frontend/public/assets/avatar-11.webp",
+      "bytes": 4266
+    },
+    {
+      "path": "frontend/public/assets/avatar-12.webp",
+      "bytes": 4448
+    },
+    {
+      "path": "frontend/public/assets/avatar-13.webp",
+      "bytes": 3730
+    },
+    {
+      "path": "frontend/public/assets/avatar-14.webp",
+      "bytes": 3688
+    },
+    {
+      "path": "frontend/public/assets/avatar-15.webp",
+      "bytes": 4302
+    },
+    {
+      "path": "frontend/public/assets/avatar-16.webp",
+      "bytes": 3622
+    },
+    {
+      "path": "frontend/public/assets/avatar-17.webp",
+      "bytes": 4006
+    },
+    {
+      "path": "frontend/public/assets/avatar-18.webp",
+      "bytes": 3632
+    },
+    {
+      "path": "frontend/public/assets/avatar-19.webp",
+      "bytes": 4128
+    },
+    {
+      "path": "frontend/public/assets/avatar-20.webp",
+      "bytes": 4034
+    },
+    {
+      "path": "frontend/public/assets/avatar-21.webp",
+      "bytes": 3822
+    },
+    {
+      "path": "frontend/public/assets/avatar-22.webp",
+      "bytes": 4318
+    },
+    {
+      "path": "frontend/public/assets/avatar-23.webp",
+      "bytes": 3784
+    },
+    {
+      "path": "frontend/public/assets/avatar-24.webp",
+      "bytes": 3950
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-01.webp",
+      "bytes": 9362
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-02.webp",
+      "bytes": 9446
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-03.webp",
+      "bytes": 9280
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-04.webp",
+      "bytes": 8844
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-05.webp",
+      "bytes": 9606
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-06.webp",
+      "bytes": 9310
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-07.webp",
+      "bytes": 8956
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-08.webp",
+      "bytes": 9602
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-09.webp",
+      "bytes": 9354
+    },
+    {
+      "path": "frontend/public/assets/chat-wallpaper-10.webp",
+      "bytes": 8916
+    },
+    {
+      "path": "frontend/public/assets/fenix-icon.png",
+      "bytes": 4688
+    },
+    {
+      "path": "frontend/public/assets/sticker-01.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-02.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-03.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-04.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-05.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-06.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-07.png",
+      "bytes": 2085
+    },
+    {
+      "path": "frontend/public/assets/sticker-08.png",
+      "bytes": 2221
+    },
+    {
+      "path": "frontend/public/assets/sticker-09.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-10.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-11.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/public/assets/sticker-12.png",
+      "bytes": 2254
+    },
+    {
+      "path": "frontend/src/App.jsx",
+      "bytes": 4392
+    },
+    {
+      "path": "frontend/src/components/Avatar.jsx",
+      "bytes": 271
+    },
+    {
+      "path": "frontend/src/components/IconButton.jsx",
+      "bytes": 187
+    },
+    {
+      "path": "frontend/src/components/Loading.jsx",
+      "bytes": 143
+    },
+    {
+      "path": "frontend/src/components/Modal.jsx",
+      "bytes": 269
+    },
+    {
+      "path": "frontend/src/components/Toast.jsx",
+      "bytes": 129
+    },
+    {
+      "path": "frontend/src/features/auth/AuthScreen.jsx",
+      "bytes": 1794
+    },
+    {
+      "path": "frontend/src/features/auth/Protected.jsx",
+      "bytes": 74
+    },
+    {
+      "path": "frontend/src/features/chats/ChatHeader.jsx",
+      "bytes": 236
+    },
+    {
+      "path": "frontend/src/features/chats/ChatList.jsx",
+      "bytes": 810
+    },
+    {
+      "path": "frontend/src/features/chats/ChatView.jsx",
+      "bytes": 1892
+    },
+    {
+      "path": "frontend/src/features/chats/EmptyState.jsx",
+      "bytes": 300
+    },
+    {
+      "path": "frontend/src/features/chats/MessageBubble.jsx",
+      "bytes": 1229
+    },
+    {
+      "path": "frontend/src/features/groups/GroupModal.jsx",
+      "bytes": 619
+    },
+    {
+      "path": "frontend/src/features/profile/ProfilePanel.jsx",
+      "bytes": 613
+    },
+    {
+      "path": "frontend/src/features/settings/SettingsPanel.jsx",
+      "bytes": 1243
+    },
+    {
+      "path": "frontend/src/hooks/useAuth.js",
+      "bytes": 393
+    },
+    {
+      "path": "frontend/src/hooks/useWebSocket.js",
+      "bytes": 375
+    },
+    {
+      "path": "frontend/src/lib/api.js",
+      "bytes": 790
+    },
+    {
+      "path": "frontend/src/lib/format.js",
+      "bytes": 355
+    },
+    {
+      "path": "frontend/src/lib/storage.js",
+      "bytes": 245
+    },
+    {
+      "path": "frontend/src/main.jsx",
+      "bytes": 213
+    },
+    {
+      "path": "frontend/src/styles.css",
+      "bytes": 28447
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "bytes": 165
+    },
+    {
+      "path": "main.py",
+      "bytes": 48
+    },
+    {
+      "path": "patch.py",
+      "bytes": 9783
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 724
+    },
+    {
+      "path": "render.yaml",
+      "bytes": 210
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 287
+    },
+    {
+      "path": "scripts/check_project.py",
+      "bytes": 386
+    },
+    {
+      "path": "tests/test_auth_flow.py",
+      "bytes": 800
+    },
+    {
+      "path": "tests/test_auth_validation.py",
+      "bytes": 203
+    },
+    {
+      "path": "tests/test_health.py",
+      "bytes": 239
+    }
+  ]
+}
